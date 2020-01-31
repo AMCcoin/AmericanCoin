@@ -342,15 +342,14 @@ bool CAddrMan::Add_(const CAddress &addr, const CNetAddr& source, int64 nTimePen
             return false;
 
         // stochastic test: previous nRefCount == N: 2^N times harder to increase it
-        int nFactor = 1;
-        for (int n=0; n<pinfo->nRefCount; n++)
-            nFactor *= 2;
-        if (nFactor > 1 && (GetRandInt(nFactor) != 0))
+        int nFactor = pinfo->nRefCount <= 0 ? 0 : 1 << pinfo->nRefCount;
+        int randInt = GetRandInt(nFactor);
+        if (nFactor > 1 && randInt != 0)
             return false;
     } else {
         pinfo = Create(addr, source, &nId);
         pinfo->nTime = max((int64)0, (int64)pinfo->nTime - nTimePenalty);
-//        printf("Added %s [nTime=%fhr]\n", pinfo->ToString().c_str(), (GetAdjustedTime() - pinfo->nTime) / 3600.0);
+        if (fDebugNet) printf("Added %s [nTime=%fhr]\n", pinfo->ToString().c_str(), (GetAdjustedTime() - pinfo->nTime) / 3600.0);
         nNew++;
         fNew = true;
     }
