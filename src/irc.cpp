@@ -90,7 +90,7 @@ bool RecvLineIRC(SOCKET hSocket, string& strLine)
             ParseString(strLine, ' ', vWords);
             if (vWords.size() >= 1 && vWords[0] == "PING")
             {
-                strLine[1] = 'O';
+                strLine[1] = 'O';  // change to "PONG"
                 strLine += '\r';
                 Send(hSocket, strLine.c_str());
                 continue;
@@ -323,6 +323,7 @@ void ThreadIRCSeed2(void* parg)
 
             if (vWords[1] == "352" && vWords.size() >= 8)
             {
+                // record from /WHO list
                 // index 7 is limited to 16 characters
                 // could get full length name at index 10, but would be different from join messages
                 strlcpy(pszName, vWords[7].c_str(), sizeof(pszName));
@@ -350,7 +351,7 @@ void ThreadIRCSeed2(void* parg)
                 }
                 else
                 {
-                    printf("IRC decode failed\n");
+                    printf("IRC decode of %s failed\n", pszName);
                 }
             }
         }
